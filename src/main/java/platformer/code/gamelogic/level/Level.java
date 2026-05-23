@@ -47,7 +47,7 @@ public class Level {
 	public static float GRAVITY = 70;
 
 	public Level(LevelData leveldata) {
-		this.leveldata = leveldata;
+		this.leveldata  = leveldata;
 		mapdata = leveldata.getMapdata();
 		width = mapdata.getWidth();
 		height = mapdata.getHeight();
@@ -193,34 +193,52 @@ public class Level {
 	}
 	
 	
-	//#############################################################################################################
-	//Your code goes here! 
-	//Please make sure you read the rubric/directions carefully and implement the solution recursively!
+	//Carson Kim -
+	//Pre con - map/level has already been created and is populated by tiles
+	//post con - creates new water tiles that flow until they reach a border or a wall.
 	private void water(int col, int row, Map map, int fullness) {
-		int col2=0;
-		int row2=0;
-		Water w = new Water (col, row, tileSize, tileset.getImage("Full_water"), this, fullness);
-		map.addTile(col, row, w);
-
-                       //check if we can go down
-
-                       //if we can’t go down go left and right.
-		//right
-		if(col+1 < map.getTiles().length && !(map.getTiles()[col+1][row] instanceof Water)) {
-			if(map.getTiles()[col+1][row+1].isSolid()){
-				water(col+1, row, map, 3);
-			} else{
-				
-				map.getTiles()[col2][row2].isSolid()
-					water(col2, row2, map, 0);
-				}
-			}
+   		if (col < 0 || col >= map.getTiles().length || row < 0 || row >= map.getTiles()[0].length
+				|| (map.getTiles()[col][row] != null && map.getTiles()[col][row].isSolid())){
+					return;
+					//Makes sure that the water only goes to where it is allowed to go
 		}
-		//left
-		if(col-1 >= 0 && !(map.getTiles()[col-1][row] instanceof Water)) {
-			water(col-1, row, map, 3);
+
+			String[] coconutWater = {"Falling_water", "Quarter_water", "Half_water", "Full_water"};
+			map.addTile(col, row, new Water(col, row, tileSize, tileset.getImage(coconutWater[fullness]), this, fullness));
+			//created a new string array to be able to access the images
+			//replaces old tile with the new water with certain fullness
+
+		if (row + 1 < map.getTiles()[0].length
+				&& (map.getTiles()[col][row + 1] == null || !map.getTiles()[col][row + 1].isSolid())) {
+			water(col, row + 1, map, 0);
+			return;
+			//makes water flow down if there is no solid tile below it/not at border
 		}
+
+		if (fullness == 0) {
+			fullness = 3;
+			map.addTile(col, row, new Water(col, row, tileSize, tileset.getImage(coconutWater[3]), this, 3));
+		}
+
+		int next = 1;
+		if (fullness == 3)
+			next = 2;
+		//turns falling water into sideways water
+
+		if (col + 1 < map.getTiles().length
+				&& (!map.getTiles()[col + 1][row].isSolid())
+				&& !(map.getTiles()[col + 1][row] instanceof Water)) {
+			water(col + 1, row, map, next);
+		}
+		//stretchs water rightward - changed 3 to next so it doesnt stay full
+		if (col - 1 >= 0 && (!map.getTiles()[col - 1][row].isSolid())
+				&& !(map.getTiles()[col - 1][row] instanceof Water)) {
+			water(col - 1, row, map, next);
+		}
+				//stretchs water leftward - changed 3 to next so it doesnt stay full
+
 	}
+	
 
 
 
