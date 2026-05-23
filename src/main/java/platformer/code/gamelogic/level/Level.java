@@ -193,7 +193,7 @@ public class Level {
 	}
 	
 	
-	//Carson Kim -
+	//Carson Kim
 	//Pre con - map/level has already been created and is populated by tiles
 	//post con - creates new water tiles that flow until they reach a border or a wall.
 	private void water(int col, int row, Map map, int fullness) {
@@ -226,12 +226,12 @@ public class Level {
 		//turns falling water into sideways water
 
 		if (col + 1 < map.getTiles().length
-				&& (!map.getTiles()[col + 1][row].isSolid())
+				&& (map.getTiles()[col + 1][row]==null||!map.getTiles()[col + 1][row].isSolid())
 				&& !(map.getTiles()[col + 1][row] instanceof Water)) {
 			water(col + 1, row, map, next);
 		}
 		//stretchs water rightward - changed 3 to next so it doesnt stay full
-		if (col - 1 >= 0 && (!map.getTiles()[col - 1][row].isSolid())
+		if (col - 1 >= 0 && (map.getTiles()[col-1][row]==null||!map.getTiles()[col - 1][row].isSolid())
 				&& !(map.getTiles()[col - 1][row] instanceof Water)) {
 			water(col - 1, row, map, next);
 		}
