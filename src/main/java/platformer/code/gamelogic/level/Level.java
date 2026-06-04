@@ -169,8 +169,8 @@ public class Level {
 				if (flowers.get(i).getHitbox().isIntersecting(player.getHitbox())) {
 					if(flowers.get(i).getType() == 1)
 						water(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 3);
-//					else
-//						addGas(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 20, new ArrayList<Gas>());
+					else
+						addGas(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 20, new ArrayList<Gas>());
 					flowers.remove(i);
 					i--;
 				}
@@ -222,7 +222,7 @@ public class Level {
 		}
 
 		int next = 1;
-		if (fullness == 3){
+		if (fullness == 3){ 
 			next = 2;
 		}
 		//calculates how much the water must shrink when spreading
@@ -241,38 +241,108 @@ public class Level {
 				//stretchs water leftward - changed 3 to next so it doesnt stay full
 
 	}
+
+	private void addGas(int col, int row, Map map, int numSquaresToFill, ArrayList<Gas> placedThisRound) {
+		if(col<0||col>=map.getWidth()||row<0||row>=map.getHeigh()){
+			return;
+		}
+		if(map.getTiles()[col][row] instanceof Gas){
+			return;
+		}
+		Gas gasInitial = new Gas(col, row, tileSize, tileset.getImage"GasOne", this,0);
+		map.addTile(col,row,gasInitial);
+		placedThisRound.add(gasInitial);
+		int tilesPlaced = 1;
+
+		if(tilesPlaced>=numSquaresToFill){
+			return;
+		}
+		for(int i = 0;i<placedThisRound.size();i++){
+			Gas currentGas = placedThisRound.get(i);
+			int curCol = (int) currentGas.getX();
+			int curRow=(int) currentGas.getY();
+			int[][] directions = {{0,-1},{-1,0},{1,0},{0,1}};
+
+			for(int[] dir: directions){
+				int nextCol=curCol+dir[0];
+				int nextRow = curRow+dir[1];
+				if(nextCol>=0&&nextCol<map.getWidth() && nextRow>=0&&nextRow<map.getHeight()){
+					Tile targTile = map.getTiles()[nextCol][nextRow];
+					if(targTile==null){
+						Gas newGas = new Gas(nextCol,nextRow,tileSize,tileset.getImage("GasOne"),this,0);
+						map.addTile(nextCol,nextRow,newGas);
+						placedThisRound.add(newGas);
+						tilesPlaced++;
+						if(tilesPlaced>=numSquaredToFill){
+							return;
+						}
+					}
+				}
+			}
+		}
+	}	
 	
 
 
 
 	public void draw(Graphics g) {
-		g.translate((int) -camera.getX(), (int) -camera.getY());
+	   	 g.translate((int) -camera.getX(), (int) -camera.getY());
+	   	 for (int x = 0; x < map.getWidth(); x++) {
+	   		 for (int y = 0; y < map.getHeight(); y++) {
+	   			 Tile tile = map.getTiles()[x][y];
+	   			 if (tile == null)
+	   				 continue;
+	   			 if(tile instanceof Gas) {
+	   				
+	   				 int adjacencyCount =0;
+	   				 for(int i=-1; i<2; i++) {
+	   					 for(int j =-1; j<2; j++) {
+	   						 if(j!=0 || i!=0) {
+	   							 if((x+i)>=0 && (x+i)<map.getTiles().length && (y+j)>=0 && (y+j)<map.getTiles()[x].length) {
+	   								 if(map.getTiles()[x+i][y+j] instanceof Gas) {
+	   									 adjacencyCount++;
+	   								 }
+	   							 }
+	   						 }
+	   					 }
+	   				 }
+	   				 if(adjacencyCount == 8) {
+	   					 ((Gas)(tile)).setIntensity(2);
+	   					 tile.setImage(tileset.getImage("GasThree"));
+	   				 }
+	   				 else if(adjacencyCount >5) {
+	   					 ((Gas)(tile)).setIntensity(1);
+	   					tile.setImage(tileset.getImage("GasTwo"));
+	   				 }
+	   				 else {
+	   					 ((Gas)(tile)).setIntensity(0);
+	   					tile.setImage(tileset.getImage("GasOne"));
+	   				 }
+	   			 }
+	   			 if (camera.isVisibleOnCamera(tile.getX(), tile.getY(), tile.getSize(), tile.getSize()))
+	   				 tile.draw(g);
+	   		 }
+	   	 }
 
-		// Draw the map
-		for (int x = 0; x < map.getWidth(); x++) {
-			for (int y = 0; y < map.getHeight(); y++) {
-				Tile tile = map.getTiles()[x][y];
-				if (tile == null)
-					continue;
-				if (camera.isVisibleOnCamera(tile.getX(), tile.getY(), tile.getSize(), tile.getSize()))
-					tile.draw(g);
-			}
-		}
 
-		// Draw the enemies
-		for (int i = 0; i < enemies.length; i++) {
-			enemies[i].draw(g);
-		}
+	   	 // Draw the enemies
+	   	 for (int i = 0; i < enemies.length; i++) {
+	   		 enemies[i].draw(g);
+	   	 }
 
-		// Draw the player
-		player.draw(g);
 
-		// used for debugging
-		if (Camera.SHOW_CAMERA)
-			camera.draw(g);
+	   	 // Draw the player
+	   	 player.draw(g);
 
-		g.translate((int) +camera.getX(), (int) +camera.getY());
-	}
+
+
+
+	   	 // used for debugging
+	   	 if (Camera.SHOW_CAMERA)
+	   		 camera.draw(g);
+	   	 g.translate((int) +camera.getX(), (int) +camera.getY());
+	    }
+
 
 	// --------------------------Die-Listener
 	public void throwPlayerDieEvent() {
