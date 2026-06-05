@@ -1,5 +1,7 @@
 package platformer.code.gamelogic.level;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,7 @@ public class Level {
 
 	private ArrayList<Enemy> enemiesList = new ArrayList<>();
 	private ArrayList<Flower> flowers = new ArrayList<>();
+	private ArrayList<Water> waters= new ArrayList<>();
 
 	private List<PlayerDieListener> dieListeners = new ArrayList<>();
 	private List<PlayerWinListener> winListeners = new ArrayList<>();
@@ -44,6 +47,8 @@ public class Level {
 	private int height;
 	private int tileSize;
 	private Tileset tileset;
+	private long waterTimer=0;
+	private long timeAmount=5;
 	public static float GRAVITY = 70;
 
 	public Level(LevelData leveldata) {
@@ -176,6 +181,20 @@ public class Level {
 				}
 			}
 
+			for(int i=0;i<water.size();i++){
+				if(waters.get(i).getHitbox().isIntersecting(player.getHitbox()){
+					if(waterTimer==0){
+						waterTimer=System.currentTimeMillis();
+					}
+					else{
+						if((System.currentTimeMillis()-waterTimer)/1000>=timeAmount){
+
+							waterTimer=0;
+						}
+					}
+				}
+				}))
+			}
 			// Update the enemies
 			for (int i = 0; i < enemies.length; i++) {
 				enemies[i].update(tslf);
@@ -239,17 +258,18 @@ public class Level {
 			water(col - 1, row, map, next);
 		}
 				//stretchs water leftward - changed 3 to next so it doesnt stay full
+				Water w =
 
 	}
 
 	private void addGas(int col, int row, Map map, int numSquaresToFill, ArrayList<Gas> placedThisRound) {
-		if(col<0||col>=map.getWidth()||row<0||row>=map.getHeigh()){
+		if(col<0||col>=map.getWidth()||row<0||row>=map.getHeight()){
 			return;
 		}
 		if(map.getTiles()[col][row] instanceof Gas){
 			return;
 		}
-		Gas gasInitial = new Gas(col, row, tileSize, tileset.getImage"GasOne", this,0);
+		Gas gasInitial = new Gas(col, row, tileSize, tileset.getImage("GasOne"), this,0);
 		map.addTile(col,row,gasInitial);
 		placedThisRound.add(gasInitial);
 		int tilesPlaced = 1;
@@ -273,7 +293,7 @@ public class Level {
 						map.addTile(nextCol,nextRow,newGas);
 						placedThisRound.add(newGas);
 						tilesPlaced++;
-						if(tilesPlaced>=numSquaredToFill){
+						if(tilesPlaced>=numSquaresToFill){
 							return;
 						}
 					}
@@ -322,6 +342,9 @@ public class Level {
 	   			 if (camera.isVisibleOnCamera(tile.getX(), tile.getY(), tile.getSize(), tile.getSize()))
 	   				 tile.draw(g);
 	   		 }
+			 g.setColor(Color.RED);;
+			 g.setFont(new Font("Arial", Font.BOLD,40));
+			 g.drawString((System.currentTimeMillis()-waterTimer)/1000+"", (int) player.getX(), (int)player.getY()-20)
 	   	 }
 
 
