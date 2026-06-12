@@ -269,51 +269,51 @@ public class Level {
 
 
 	}
-	// Carson Kim - This method creates gas when a player triggers a gas flower.
-	// Pre-con: (col, row) is a valid space, the Map object is initialized, and numSquaresToFill > 0.
-	// Post-con: creates Gas tiles up to numSquaresToFill or until bounds/solid structures completely seal it off.
+
+	//Carson Kim
+	//pre con -map/level has already been created and is populated by tiles
+	// post con -creates gas tiles based on the layout shown in the directions (up,upright,etc)
+	//Ends when 20 gas tiles have been created or is sealed/off the map
 	private void addGas(int col, int row, Map map, int numSquaresToFill, ArrayList<Gas> placedThisRound) {
-		//check dimensions to make sure gas doesn't go out of bounds
-		if (col < 0 || col >= map.getWidth() || row < 0 || row >= map.getTiles()[0].length) {
+		if(col<0||col>=map.getTiles().length||row<0||row>=map.getTiles()[0].length){
 			return;
 		}
-		//cannot put gas over a gas tile
-		if (map.getTiles()[col][row] instanceof Gas) {
+		if(map.getTiles()[col][row] instanceof Gas){
 			return;
 		}
-		//
-		Gas gasInitial = new Gas(col, row, tileSize, tileset.getImage("GasOne"), this, 0);
-		map.addTile(col, row, gasInitial);
+		Gas gasInitial = new Gas(col, row, tileSize, tileset.getImage("GasOne"), this,0);
+		map.addTile(col,row,gasInitial);
 		placedThisRound.add(gasInitial);
 		int tilesPlaced = 1;
 
-		if (tilesPlaced >= numSquaresToFill){
+		if(tilesPlaced>=numSquaresToFill){
 			return;
 		}
-		for (int i = 0; i < placedThisRound.size(); i++) {
+		for(int i = 0;i<placedThisRound.size();i++){
 			Gas currentGas = placedThisRound.get(i);
-			int curCol = (int) currentGas.getCol();
-			int curRow = (int) currentGas.getRow();
-			int[][] directions = { { 0, -1 }, { -1, 0 }, { 1, 0 }, { 0, 1 } };
+			int curCol = (int) currentGas.getX();
+			int curRow=(int) currentGas.getY();
+			int[][] directions = {{0,-1},{-1,0},{1,0},{0,1}};
 
-			for (int[] dir : directions) {
-				int nextCol = curCol + dir[0];
-				int nextRow = curRow + dir[1];
-				if (nextCol >= 0 && nextCol < map.getTiles().length && nextRow >= 0 && nextRow < map.getTiles()[0].length) {
+			for(int[] dir: directions){
+				int nextCol=curCol+dir[0];
+				int nextRow = curRow+dir[1];
+				if(nextCol>=0&&nextCol<map.getWidth() && nextRow>=0&&nextRow<map.getHeight()){
 					Tile targTile = map.getTiles()[nextCol][nextRow];
-					if (targTile == null || (!targTile.isSolid()&&!(targTile instanceof Gas))) {
-						Gas newGas = new Gas(nextCol, nextRow, tileSize, tileset.getImage("GasOne"), this, 0);
-						map.addTile(nextCol, nextRow, newGas);
+					if(targTile==null){
+						Gas newGas = new Gas(nextCol,nextRow,tileSize,tileset.getImage("GasOne"),this,0);
+						map.addTile(nextCol,nextRow,newGas);
 						placedThisRound.add(newGas);
 						tilesPlaced++;
-						if (tilesPlaced >= numSquaresToFill) {
+						if(tilesPlaced>=numSquaresToFill){
 							return;
 						}
 					}
 				}
 			}
 		}
-	}
+	}	
+
 
 	public void draw(Graphics g) {
 	   	 g.translate((int) -camera.getX(), (int) -camera.getY());
