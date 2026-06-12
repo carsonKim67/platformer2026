@@ -275,20 +275,26 @@ public class Level {
 	// post con -creates gas tiles based on the layout shown in the directions (up,upright,etc)
 	//Ends when 20 gas tiles have been created or is sealed/off the map
 	private void addGas(int col, int row, Map map, int numSquaresToFill, ArrayList<Gas> placedThisRound) {
+		//Checks if gas is in bounds
 		if(col<0||col>=map.getTiles().length||row<0||row>=map.getTiles()[0].length){
 			return;
 		}
+		//cannot put one gas block over another
 		if(map.getTiles()[col][row] instanceof Gas){
 			return;
 		}
+
+		//make the initial origin gas block to start expansion of gas from there
 		Gas gasInitial = new Gas(col, row, tileSize, tileset.getImage("GasOne"), this,0);
 		map.addTile(col,row,gasInitial);
 		placedThisRound.add(gasInitial);
 		int tilesPlaced = 1;
 
+		//checks if the volume target is reached immediately
 		if(tilesPlaced>=numSquaresToFill){
 			return;
 		}
+		
 		for(int i = 0;i<placedThisRound.size();i++){
 			Gas currentGas = placedThisRound.get(i);
 			int curCol = (int) currentGas.getX();
