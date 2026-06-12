@@ -294,23 +294,25 @@ public class Level {
 		if(tilesPlaced>=numSquaresToFill){
 			return;
 		}
-		
+
+		//loop through layout list/spread outward
 		for(int i = 0;i<placedThisRound.size();i++){
 			Gas currentGas = placedThisRound.get(i);
-			int curCol = (int) currentGas.getX();
-			int curRow=(int) currentGas.getY();
-			int[][] directions = {{0,-1},{-1,0},{1,0},{0,1}};
-
+			int curCol = currentGas.getCol();
+			int curRow=	currentGas.getRow();
+			int[][] directions = {{0,-1}, {1,-1},{-1,-1},{1,0},{-1,0},{0,1},{1,1},{-1,1}};
+			//scans the tiles based on priority
 			for(int[] dir: directions){
 				int nextCol=curCol+dir[0];
 				int nextRow = curRow+dir[1];
-				if(nextCol>=0&&nextCol<map.getWidth() && nextRow>=0&&nextRow<map.getHeight()){
+				if(nextCol>=0&&nextCol<map.getTiles().length && nextRow >=0 && nextRow < map.getTiles()[0].length){
 					Tile targTile = map.getTiles()[nextCol][nextRow];
-					if(targTile==null){
+					if(targTile==null||(!targTile.isSolid() && !(targTile instanceof Gas))){
 						Gas newGas = new Gas(nextCol,nextRow,tileSize,tileset.getImage("GasOne"),this,0);
 						map.addTile(nextCol,nextRow,newGas);
 						placedThisRound.add(newGas);
 						tilesPlaced++;
+						//another check for targeted volume threshold
 						if(tilesPlaced>=numSquaresToFill){
 							return;
 						}
