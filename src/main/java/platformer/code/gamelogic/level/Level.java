@@ -195,7 +195,7 @@ public class Level {
 					}
 				}
 			}
-
+			
 			updatePlayerMovementSpeed(inWater);
 			player.setInGas(inGas);
 
