@@ -121,14 +121,23 @@ public class Level {
 					tiles[x][y] = new Gas(xPosition, yPosition, tileSize, tileset.getImage("GasTwo"), this, 2);
 				else if (values[x][y] == 17)
 					tiles[x][y] = new Gas(xPosition, yPosition, tileSize, tileset.getImage("GasThree"), this, 3);
-				else if (values[x][y] == 18)
-					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Falling_water"), this, 0);
-				else if (values[x][y] == 19)
-					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Full_water"), this, 3);
-				else if (values[x][y] == 20)
-					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Half_water"), this, 2);
-				else if (values[x][y] == 21)
-					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Quarter_water"), this, 1);
+				else if (values[x][y] == 18) {
+					Water waterTile = new Water(xPosition, yPosition, tileSize, tileset.getImage("Falling_water"), this, 0);
+					tiles[x][y] = waterTile;
+					waters.add(waterTile);
+				} else if (values[x][y] == 19) {
+					Water waterTile = new Water(xPosition, yPosition, tileSize, tileset.getImage("Full_water"), this, 3);
+					tiles[x][y] = waterTile;
+					waters.add(waterTile);
+				} else if (values[x][y] == 20) {
+					Water waterTile = new Water(xPosition, yPosition, tileSize, tileset.getImage("Half_water"), this, 2);
+					tiles[x][y] = waterTile;
+					waters.add(waterTile);
+				} else if (values[x][y] == 21) {
+					Water waterTile = new Water(xPosition, yPosition, tileSize, tileset.getImage("Quarter_water"), this, 1);
+					tiles[x][y] = waterTile;
+					waters.add(waterTile);
+				}
 			}
 
 		}
@@ -160,8 +169,36 @@ public class Level {
 		throwPlayerWinEvent();
 	}
 
+	public void updatePlayerMovementSpeed(boolean inWater) {
+		if (player != null) {
+			player.updateMovementSpeed(inWater);
+		}
+	}
+
 	public void update(float tslf) {
 		if (active) {
+			boolean inWater = false;
+			boolean inGas = false;
+
+			for (int x = 0; x < map.getWidth(); x++) {
+				for (int y = 0; y < map.getHeight(); y++) {
+					Tile tile = map.getTiles()[x][y];
+					if (tile == null || tile.getHitbox() == null) {
+						continue;
+					}
+
+					if (tile instanceof Water && tile.getHitbox().isIntersecting(player.getHitbox())) {
+						inWater = true;
+					}
+					if (tile instanceof Gas && tile.getHitbox().isIntersecting(player.getHitbox())) {
+						inGas = true;
+					}
+				}
+			}
+
+			updatePlayerMovementSpeed(inWater);
+			player.setInGas(inGas);
+
 			// Update the player
 			player.update(tslf);
 
@@ -188,20 +225,6 @@ public class Level {
 				}
 			}
 
-			for(int i=0;i<waters.size();i++){
-				if(waters.get(i).getHitbox().isIntersecting(player.getHitbox())){
-					if(waterTimer==0){
-						waterTimer=System.currentTimeMillis();
-					}
-					else{
-						if((System.currentTimeMillis()-waterTimer)/1000>=timeAmount){
-
-							waterTimer=0;
-						}
-					}
-				}
-				
-			}
 			// Update the enemies
 for (int i = 0; i < enemies.length; i++) {
 				enemies[i].update(tslf);
@@ -238,7 +261,9 @@ for (int i = 0; i < enemies.length; i++) {
 		}
 
 			String[] coconutWater = {"Falling_water", "Quarter_water", "Half_water", "Full_water"};
-			map.addTile(col, row, new Water(col, row, tileSize, tileset.getImage(coconutWater[fullness]), this, fullness));
+			Water waterTile = new Water(col, row, tileSize, tileset.getImage(coconutWater[fullness]), this, fullness);
+			map.addTile(col, row, waterTile);
+			waters.add(waterTile);
 			//created a new string array to be able to access the images
 			//replaces old tile with the new water with certain fullness
 

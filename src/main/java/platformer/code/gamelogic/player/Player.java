@@ -11,10 +11,15 @@ import platformer.code.gamelogic.level.Level;
 import platformer.code.gamelogic.tiles.Tile;
 
 public class Player extends PhysicsObject{
-	public float walkSpeed = 400;
+	private static final float DEFAULT_WALK_SPEED = 400f;
+	private static final float WATER_SLOWDOWN_MULTIPLIER = 0.20f;
+	private static final float GAS_LIFT_FORCE = 0.35f;
+
+	public float walkSpeed = DEFAULT_WALK_SPEED;
 	public float jumpPower = 1350;
 
 	private boolean isJumping = false;
+	private boolean inGas = false;
 
 	public Player(float x, float y, Level level) {
 	
@@ -23,10 +28,34 @@ public class Player extends PhysicsObject{
 		this.hitbox = new RectHitbox(this, offset,offset, width -offset, height - offset);
 	}
 
+	public float getBaseSpeed() {
+    	return DEFAULT_WALK_SPEED;
+	}
+
+	public void setSpeed(float newSpeed) {
+    	this.walkSpeed = newSpeed;
+	}
+
+	public void updateMovementSpeed(boolean inWater) {
+		if (inWater) {
+			this.walkSpeed = getBaseSpeed() * WATER_SLOWDOWN_MULTIPLIER;
+		} else {
+			this.walkSpeed = getBaseSpeed();
+		}
+	}
+
+	public void setInGas(boolean inGas) {
+		this.inGas = inGas;
+	}
+
 	@Override
 	public void update(float tslf) {
+		if (inGas) {
+			movementVector.y = -jumpPower * GAS_LIFT_FORCE;
+		}
+
 		super.update(tslf);
-		
+
 		movementVector.x = 0;
 		if(PlayerInput.isLeftKeyDown()) {
 			movementVector.x = -walkSpeed;
@@ -38,7 +67,10 @@ public class Player extends PhysicsObject{
 			movementVector.y = -jumpPower;
 			isJumping = true;
 		}
-		
+		if (inGas) {
+			movementVector.y = -jumpPower * GAS_LIFT_FORCE;
+		}
+
 		isJumping = true;
 		if(collisionMatrix[BOT] != null) isJumping = false;
 	}
