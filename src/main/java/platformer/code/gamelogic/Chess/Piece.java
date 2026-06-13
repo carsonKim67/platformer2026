@@ -3,8 +3,8 @@ package platformer.code.gamelogic.Chess;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
@@ -17,8 +17,11 @@ public class Piece {
         this.color = color;
         try {
             if (this.img == null) {
-                this.img = ImageIO.read(new File(System.getProperty("user.dir")
-                        + img_file));
+                URL imageUrl = Piece.class.getResource(img_file);
+                if (imageUrl == null) {
+                    throw new IOException("Image resource not found: " + img_file);
+                }
+                this.img = ImageIO.read(imageUrl);
             }
         } catch (IOException e) {
             System.out.println("File not found: " + e.getMessage());

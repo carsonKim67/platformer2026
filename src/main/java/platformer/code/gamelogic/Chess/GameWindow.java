@@ -4,8 +4,6 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -31,7 +29,7 @@ public class GameWindow {
         
 
         try {
-            Image whiteImg = ImageIO.read(new File(System.getProperty("user.dir")+Board.path+"wp.png"));
+            Image whiteImg = ImageIO.read(GameWindow.class.getResource(Board.path + "wp.png"));
             gameWindow.setIconImage(whiteImg);
         } catch (Exception e) {
             System.out.println("Game file wp.png not found");

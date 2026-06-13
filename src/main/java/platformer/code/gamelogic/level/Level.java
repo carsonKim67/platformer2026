@@ -1,5 +1,4 @@
 package platformer.code.gamelogic.level;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -34,6 +33,7 @@ public class Level {
 	private boolean active;
 	private boolean playerDead;
 	private boolean playerWin;
+	private boolean transitioningToChess;
 
 	private ArrayList<Enemy> enemiesList = new ArrayList<>();
 	private ArrayList<Flower> flowers = new ArrayList<>();
@@ -65,6 +65,11 @@ public class Level {
 	}
 
 	public void restartLevel() {
+		enemiesList.clear();
+		flowers.clear();
+		waters.clear();
+		enemies = new Enemy[0];
+
 		int[][] values = mapdata.getValues();
 		Tile[][] tiles = new Tile[width][height];
 
@@ -140,6 +145,7 @@ public class Level {
 		active = true;
 		playerDead = false;
 		playerWin = false;
+		transitioningToChess = false;
 	}
 
 	public void onPlayerDeath() {
@@ -197,10 +203,16 @@ public class Level {
 				
 			}
 			// Update the enemies
-			for (int i = 0; i < enemies.length; i++) {
+for (int i = 0; i < enemies.length; i++) {
 				enemies[i].update(tslf);
 				if (player.getHitbox().isIntersecting(enemies[i].getHitbox())) {
-					onPlayerDeath();
+					if (!transitioningToChess) {
+						transitioningToChess = true;
+						this.active = false;
+
+						javax.swing.SwingUtilities.invokeLater(new platformer.code.gamelogic.Chess.StartMenu());
+					}
+					return;
 				}
 			}
 
